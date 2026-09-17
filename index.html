@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار التوظيف – تمريض</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,Tahoma,sans-serif;
+  background:#f4f7f9;
+  color:#1d2939;
+
+  /* حماية من تحديد النص */
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  user-select:none;
+}
+
+header{
+  background:#0070d7;
+  color:white;
+  padding:18px 15px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.container{
+  max-width:850px;
+  margin:30px auto;
+  padding:15px;
+}
+
+.card{
+  background:white;
+  border-radius:14px;
+  padding:25px;
+  box-shadow:0 4px 18px rgba(0,0,0,.08);
+}
+
+h1{
+  text-align:center;
+  color:#0070d7;
+  font-size:27px;
+  margin-top:5px;
+}
+
+label{
+  display:block;
+  margin-top:18px;
+  margin-bottom:7px;
+  font-weight:bold;
+}
+
+input{
+  width:100%;
+  padding:14px;
+  border:1px solid #ccd5df;
+  border-radius:8px;
+  font-size:16px;
+  outline:none;
+
+  /* السماح بالكتابة داخل الحقول */
+  -webkit-user-select:text;
+  -moz-user-select:text;
+  user-select:text;
+}
+
+input:focus{
+  border-color:#0070d7;
+}
+
+button{
+  width:100%;
+  padding:15px;
+  margin-top:22px;
+  border:0;
+  border-radius:9px;
+  background:#0070d7;
+  color:white;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#005cad;
+}
+
+.hidden{
+  display:none;
+}
+
+.exam-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.question-number{
+  font-weight:bold;
+  color:#0070d7;
+}
+
+.timer{
+  background:#fff3cd;
+  color:#856404;
+  padding:10px 15px;
+  border-radius:8px;
+  font-weight:bold;
+  min-width:100px;
+  text-align:center;
+}
+
+.timer.danger{
+  background:#f8d7da;
+  color:#842029;
+}
+
+.question{
+  font-size:20px;
+  font-weight:bold;
+  line-height:1.6;
+  margin-bottom:20px;
+  direction:ltr;
+  text-align:left;
+}
+
+.option{
+  direction:ltr;
+  text-align:left;
+  border:1px solid #d5dce3;
+  padding:14px;
+  margin:10px 0;
+  border-radius:9px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.option:hover{
+  background:#eef6ff;
+  border-color:#0070d7;
+}
+
+.option.selected{
+  background:#dceeff;
+  border-color:#0070d7;
+}
+
+.progress{
+  height:8px;
+  background:#e5e7eb;
+  border-radius:20px;
+  overflow:hidden;
+  margin-bottom:20px;
+}
+
+.progress-bar{
+  height:100%;
+  background:#0070d7;
+  width:0%;
+  transition:.3s;
+}
+
+.result{
+  text-align:center;
+}
+
+.score{
+  font-size:42px;
+  font-weight:bold;
+  color:#0070d7;
+  margin:20px;
+}
+
+.warning{
+  background:#fff3cd;
+  color:#664d03;
+  padding:12px;
+  border-radius:8px;
+  margin-top:15px;
+  line-height:1.6;
+}
+
+.error{
+  color:#b42318;
+  margin-top:12px;
+  text-align:center;
+}
+
+@media(max-width:600px){
+  header{
+    font-size:18px;
+  }
+
+  .card{
+    padding:18px;
+  }
+
+  h1{
+    font-size:23px;
+  }
+
+  .question{
+    font-size:18px;
+  }
+
+  .exam-top{
+    align-items:flex-start;
+  }
+}
+
+/* منع الطباعة */
+@media print{
+  body{
+    display:none !important;
+  }
+}
+
+/* منع سحب الصور إن وجدت */
+img{
+  -webkit-user-drag:none;
+  user-drag:none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  منظمة الإنقاذ الدولية
+</header>
+
+<div class="container">
+
+  <!-- صفحة البداية -->
+  <div id="startPage" class="card">
+
+    <h1>اختبار التوظيف – تمريض</h1>
+
+    <label for="candidateName">اسم الممتحن/الممتحنة</label>
+    <input
+      type="text"
+      id="candidateName"
+      placeholder="اكتب الاسم الكامل"
+      autocomplete="name"
+    >
+
+    <label for="candidateEmail">البريد الإلكتروني</label>
+    <input
+      type="email"
+      id="candidateEmail"
+      placeholder="example@email.com"
+      autocomplete="email"
+    >
+
+    <button onclick="startExam()">
+      بدء الاختبار
+    </button>
+
+    <div id="startError" class="error"></div>
+
+    <div class="warning">
+      الاختبار يتكون من 100 سؤال. لكل سؤال 20 ثانية.
+      عند انتهاء الوقت سيتم الانتقال تلقائيًا إلى السؤال التالي.
+    </div>
+
+  </div>
+
+
+  <!-- صفحة الاختبار -->
+  <div id="examPage" class="card hidden">
+
+    <div class="exam-top">
+
+      <div class="question-number" id="questionNumber">
+        السؤال 1 من 100
+      </div>
+
+      <div class="timer" id="timer">
+        20 ثانية
+      </div>
+
+    </div>
+
+    <div class="progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div id="questionText" class="question"></div>
+
+    <div id="options"></div>
+
+    <button onclick="nextQuestion()" id="nextButton">
+      التالي
+    </button>
+
+  </div>
+
+
+  <!-- النتيجة -->
+  <div id="resultPage" class="card hidden">
+
+    <div class="result">
+
+      <h1>انتهى الاختبار</h1>
+
+      <p id="candidateResult"></p>
+
+      <div class="score" id="score"></div>
+
+      <p id="resultDetails"></p>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   الأسئلة
+========================================================= */
+
+const questions = [
+
+{
+q:"A patient with ARDS is mechanically ventilated with PEEP 15 cm H₂O. Suddenly, the patient develops absent right-sided breath sounds, tracheal deviation to the left, and increasing peak inspiratory pressure. What is the priority intervention?",
+options:[
+"Increase PEEP",
+"Perform immediate needle thoracostomy on the right chest",
+"Obtain a portable chest X-ray",
+"Administer IV furosemide"
+],
+answer:"B"
+},
+
+{
+q:"A patient receiving sodium nitroprusside for 48 hours develops hypotension, metabolic acidosis, tinnitus, and altered mental status. Which laboratory finding is most concerning?",
+options:[
+"Elevated serum potassium",
+"Elevated blood cyanide and thiocyanate levels",
+"Low serum calcium",
+"Elevated troponin"
+],
+answer:"B"
+},
+
+{
+q:"A patient with severe acute pancreatitis develops flank ecchymosis due to retroperitoneal bleeding. Which clinical sign is this?",
+options:[
+"Cullen's sign",
+"Murphy's sign",
+"Grey Turner's sign",
+"Kehr's sign"
+],
+answer:"C"
+},
+
+{
+q:"Four hours after delivery, a postpartum client has heavy vaginal bleeding. The uterus is boggy, above the umbilicus, and displaced to the right. What should the nurse do first?",
+options:[
+"Administer oxytocin",
+"Assist the client to empty her bladder",
+"Prepare for blood transfusion",
+"Perform a vaginal examination"
+],
+answer:"B"
+},
+
+{
+q:"A 6-month-old infant has lethargy, irritability, vomiting, a high-pitched cry, bulging fontanel, and separated sutures. Which condition is most likely?",
+options:[
+"Hypoglycemia",
+"Dehydration",
+"Increased intracranial pressure",
+"Sepsis"
+],
+answer:"C"
+},
+
+{
+q:"A client receiving clozapine requires which laboratory monitoring?",
+options:[
+"Serum sodium and potassium",
+"ANC and leukocyte count",
+"PT and INR",
+"Serum calcium"
+],
+answer:"B"
+},
+
+{
+q:"During a foodborne outbreak, 50 of 200 people who ate potato salad became ill, while 10 of 50 who did not eat it became ill. What is the relative risk?",
+options:[
+"1.25",
+"2.0",
+"2.5",
+"5.0"
+],
+answer:"A"
+},
+
+{
+q:"A trauma patient has asymmetric chest expansion, absent left breath sounds, severe respiratory distress, hypotension, and JVD. What is the priority intervention?",
+options:[
+"Chest X-ray",
+"IV antibiotics",
+"Emergent needle decompression",
+"CT scan"
+],
+answer:"C"
+},
+
+{
+q:"A patient with ESRD has potassium 6.8 mEq/L and peaked T waves. Which medication should be administered immediately?",
+options:[
+"Furosemide",
+"IV calcium gluconate",
+"Oral potassium binder",
+"Insulin only"
+],
+answer:"B"
+},
+
+{
+q:"A patient receiving IV heparin has a baseline aPTT of 30 seconds and a current aPTT of 90 seconds. What should the nurse do?",
+options:[
+"Increase the infusion",
+"Continue at the same rate",
+"Hold the infusion temporarily and decrease the rate per protocol",
+"Administer vitamin K"
+],
+answer:"C"
+},
+
+{
+q:"A patient with septic shock has received 30 mL/kg crystalloid. MAP remains 55 mmHg and CVP is 12 mmHg. Which medication should be started first?",
+options:[
+"Dopamine",
+"Norepinephrine",
+"Furosemide",
+"Nitroglycerin"
+],
+answer:"B"
+},
+
+{
+q:"A 3-year-old child is drooling, has dysphagia, respiratory distress, muffled voice, and is sitting in a tripod position without coughing. What is the priority action?",
+options:[
+"Inspect the throat with a tongue blade",
+"Give oral fluids",
+"Keep the child calm and prepare immediate expert airway management",
+"Place the child supine"
+],
+answer:"C"
+},
+
+{
+q:"A pregnant woman at 34 weeks has severe headache, blurred vision, epigastric pain, BP 160/110, platelets 85,000, AST 210, ALT 195. What condition is most likely?",
+options:[
+"Placenta previa",
+"HELLP syndrome",
+"Gestational diabetes",
+"Hyperemesis gravidarum"
+],
+answer:"B"
+},
+
+{
+q:"A patient taking lithium has a level of 2.1 mEq/L with coarse tremor, nausea, diarrhea, ataxia, and blurred vision. What is the priority action?",
+options:[
+"Give the next lithium dose",
+"Hold lithium and notify the provider",
+"Encourage high-sodium foods only",
+"Administer haloperidol"
+],
+answer:"B"
+},
+
+{
+q:"A client develops numbness and tingling around the mouth after thyroidectomy and has a positive Chvostek sign. What is the likely problem?",
+options:[
+"Hyperkalemia",
+"Hypocalcemia with tetany",
+"Hypernatremia",
+"Hypermagnesemia"
+],
+answer:"B"
+},
+
+{
+q:"A patient with DKA is receiving IV insulin. Blood glucose is now 240 mg/dL but ketosis persists. What should the nurse anticipate?",
+options:[
+"Stop insulin immediately",
+"Add 5% dextrose to the IV fluids",
+"Give glucagon",
+"Restrict all fluids"
+],
+answer:"B"
+},
+
+{
+q:"Which intervention has the greatest impact on preventing catheter-associated urinary tract infections?",
+options:[
+"Daily catheter irrigation",
+"Discontinue indwelling catheters as soon as they are no longer indicated",
+"Routine antibiotic prophylaxis",
+"Changing the drainage bag every shift"
+],
+answer:"B"
+},
+
+{
+q:"After an MI, a patient develops JVD, clear lungs, muffled heart sounds, and falling blood pressure. Which complication is suspected?",
+options:[
+"Pulmonary edema",
+"Cardiac tamponade",
+"Left ventricular failure",
+"Mitral stenosis"
+],
+answer:"B"
+},
+
+{
+q:"A patient has an ICP of 24 mmHg and MAP of 70 mmHg. What is the cerebral perfusion pressure?",
+options:[
+"46 mmHg",
+"54 mmHg",
+"70 mmHg",
+"94 mmHg"
+],
+answer:"A"
+},
+
+{
+q:"A patient with a Sengstaken-Blakemore tube suddenly develops severe respiratory distress and cyanosis. What should the nurse do?",
+options:[
+"Increase balloon pressure",
+"Cut/deflate all lumens immediately",
+"Give oral fluids",
+"Place the client flat"
+],
+answer:"B"
+},
+
+{
+q:"A child with Tetralogy of Fallot develops a hypercyanotic tet spell. What position should be used?",
+options:[
+"Supine",
+"Knee-chest",
+"Trendelenburg",
+"Prone"
+],
+answer:"B"
+},
+
+{
+q:"A patient receiving vancomycin develops flushing, pruritus, rash, and hypotension during infusion. What is the appropriate response?",
+options:[
+"Increase infusion rate",
+"Slow the infusion and administer an antihistamine",
+"Stop all antibiotics permanently",
+"Administer potassium"
+],
+answer:"B"
+},
+
+{
+q:"A laboring client with epidural anesthesia has fetal heart rate 85/min with late decelerations and maternal BP 80/40. What is the first action?",
+options:[
+"Increase oxytocin",
+"Lateral tilt/left lateral position and IV fluid bolus",
+"Encourage pushing",
+"Administer oral fluids"
+],
+answer:"B"
+},
+
+{
+q:"A chemotherapy patient has a temperature of 38.5°C and ANC of 450/mm³. What is the priority intervention?",
+options:[
+"Wait for symptoms to resolve",
+"Administer broad-spectrum IV antibiotics within 1 hour after blood cultures",
+"Give live vaccine",
+"Restrict fluids"
+],
+answer:"B"
+},
+
+{
+q:"A client scheduled for ECT reports eating a light breakfast 2 hours before the procedure. What should the nurse do?",
+options:[
+"Proceed normally",
+"Notify the psychiatrist/anesthesiologist",
+"Give additional food",
+"Administer insulin"
+],
+answer:"B"
+},
+
+{
+q:"A near-drowning victim exposed to cold freshwater is at risk for which complications?",
+options:[
+"Hyperglycemia only",
+"Pulmonary edema, hemolysis, and electrolyte abnormalities",
+"Severe hypertension only",
+"Hypercalcemia only"
+],
+answer:"B"
+},
+
+{
+q:"A client with myasthenia gravis develops respiratory distress. An edrophonium test temporarily improves strength and respiratory status. What does this indicate?",
+options:[
+"Cholinergic crisis",
+"Myasthenic crisis",
+"Stroke",
+"Seizure"
+],
+answer:"B"
+},
+
+{
+q:"A 2-year-old ingests a large amount of iron tablets 30 minutes ago. What is the priority?",
+options:[
+"Give milk only",
+"Assess for systemic iron toxicity and prepare for appropriate decontamination/chelation",
+"Induce vomiting routinely",
+"Give potassium"
+],
+answer:"B"
+},
+
+{
+q:"During CRRT, the arterial access pressure suddenly becomes very high. What is the likely cause?",
+options:[
+"Excessive anticoagulation",
+"Obstruction, kinking, or positional occlusion of the arterial catheter",
+"Hypoglycemia",
+"Low serum calcium"
+],
+answer:"B"
+},
+
+{
+q:"A patient taking digoxin and furosemide reports yellow-green halos, anorexia, and nausea. What should the nurse check?",
+options:[
+"Only blood pressure",
+"Serum potassium and digoxin level",
+"Serum sodium only",
+"Temperature"
+],
+answer:"B"
+},
+
+{
+q:"A motorcycle crash victim has absent right breath sounds, dullness to percussion, tracheal deviation left, and profound shock. What is most likely?",
+options:[
+"Tension pneumothorax",
+"Massive hemothorax",
+"Simple pneumothorax",
+"Pulmonary embolism"
+],
+answer:"B"
+},
+
+{
+q:"A newborn is jittery, has a high-pitched cry, apnea, temperature instability, and poor feeding. The mother had poorly controlled gestational diabetes. What should be checked immediately?",
+options:[
+"Calcium only",
+"Blood glucose",
+"Cholesterol",
+"Troponin"
+],
+answer:"B"
+},
+
+{
+q:"A client with borderline personality disorder idealizes one nurse and becomes hostile toward others. This behavior is known as:",
+options:[
+"Projection",
+"Splitting",
+"Regression",
+"Sublimation"
+],
+answer:"B"
+},
+
+{
+q:"A client in Addisonian crisis has hypotension, dehydration, hyponatremia, and hyperkalemia. What is the priority treatment?",
+options:[
+"Hydrocortisone and normal saline bolus",
+"Fluid restriction",
+"Insulin only",
+"Potassium replacement"
+],
+answer:"A"
+},
+
+{
+q:"After femoral cardiac catheterization, the patient's right foot is cool and pale with absent pedal pulses. What should the nurse do?",
+options:[
+"Ambulate the client",
+"Notify the provider immediately and assess circulation",
+"Apply heat",
+"Ignore until discharge"
+],
+answer:"B"
+},
+
+{
+q:"A child with sickle cell disease is experiencing a severe vaso-occlusive crisis. Which intervention should be avoided?",
+options:[
+"Hydration",
+"Cold ice packs",
+"Analgesia",
+"Oxygen if hypoxemic"
+],
+answer:"B"
+},
+
+{
+q:"What is the primary mechanism of dobutamine?",
+options:[
+"Alpha-2 agonism",
+"Beta-1 agonism increasing contractility and stroke volume",
+"Muscarinic blockade",
+"Calcium channel blockade"
+],
+answer:"B"
+},
+
+{
+q:"A patient with active pulmonary tuberculosis requires what type of respiratory protection for healthcare workers?",
+options:[
+"Surgical mask only",
+"Fit-tested N95 respirator or higher",
+"No protection",
+"Cloth mask"
+],
+answer:"B"
+},
+
+{
+q:"Following bilateral adrenalectomy, the patient will require:",
+options:[
+"Insulin only",
+"Thyroid hormone only",
+"Lifelong glucocorticoids and mineralocorticoids",
+"Antibiotics permanently"
+],
+answer:"C"
+},
+
+{
+q:"A patient with basilar skull fracture has Battle sign and raccoon eyes. What should the nurse monitor for?",
+options:[
+"CSF otorrhea/rhinorrhea",
+"Hematuria",
+"Ascites",
+"Peripheral edema"
+],
+answer:"A"
+},
+
+{
+q:"During labor, oxytocin causes tachysystole with more than 5 contractions in 10 minutes and late decelerations. What is the priority?",
+options:[
+"Increase oxytocin",
+"Discontinue oxytocin immediately and provide intrauterine resuscitation",
+"Encourage pushing",
+"Give oral glucose"
+],
+answer:"B"
+},
+
+{
+q:"A newborn has failure to pass meconium within 24–48 hours. Which condition is suspected?",
+options:[
+"Pyloric stenosis",
+"Hirschsprung disease",
+"Intussusception",
+"Cystic fibrosis only"
+],
+answer:"B"
+},
+
+{
+q:"Why are tricyclic antidepressant overdoses particularly dangerous?",
+options:[
+"They cause only mild nausea",
+"Cardiovascular toxicity, conduction delays, and lethal arrhythmias",
+"They cause hypocalcemia only",
+"They cause isolated skin reactions"
+],
+answer:"B"
+},
+
+{
+q:"A COPD patient receiving oxygen at 4 L/min becomes lethargic with respiratory rate 8/min. What is the likely concern?",
+options:[
+"Suppression of hypoxic drive from excessive oxygen administration",
+"Hypoglycemia only",
+"Hypertension",
+"Hypercalcemia"
+],
+answer:"A"
+},
+
+{
+q:"A patient receiving norepinephrine through a peripheral IV develops blanching, coolness, and swelling at the site. What should the nurse do?",
+options:[
+"Continue infusion",
+"Stop infusion, leave catheter temporarily for phentolamine administration, and notify provider",
+"Massage vigorously",
+"Apply insulin"
+],
+answer:"B"
+},
+
+{
+q:"Which laboratory pattern is characteristic of tumor lysis syndrome?",
+options:[
+"Hyperkalemia, hyperphosphatemia, hypocalcemia, hyperuricemia",
+"Hypercalcemia and hypokalemia",
+"Hyponatremia only",
+"Low uric acid"
+],
+answer:"A"
+},
+
+{
+q:"A patient develops ventricular fibrillation after an anterior MI. What is the priority intervention?",
+options:[
+"Oral amiodarone",
+"Immediate unsynchronized defibrillation/AED and CPR",
+"Wait for spontaneous conversion",
+"IV fluids only"
+],
+answer:"B"
+},
+
+{
+q:"In suspected acute epiglottitis, which action should be avoided?",
+options:[
+"Keeping the child calm",
+"Examining the throat with a tongue blade",
+"Preparing airway equipment",
+"Providing oxygen if tolerated"
+],
+answer:"B"
+},
+
+{
+q:"A breastfeeding mother on postpartum day 2 has breast engorgement. What teaching is appropriate?",
+options:[
+"Stop breastfeeding",
+"Warm compress before feeds, cold between feeds, and frequent feeding",
+"Restrict all fluids",
+"Apply ice continuously"
+],
+answer:"B"
+},
+
+{
+q:"A patient with Guillain-Barré syndrome has ascending paralysis. What is the priority assessment?",
+options:[
+"Skin color only",
+"Respiratory rate, NIF, and vital capacity",
+"Visual acuity",
+"Hearing"
+],
+answer:"B"
+},
+
+{
+q:"A client with acute mania is pacing and speaking rapidly. What food is most appropriate?",
+options:[
+"Low-calorie salad only",
+"High-calorie nutritious finger foods",
+"Large meals requiring prolonged sitting",
+"Nothing by mouth"
+],
+answer:"B"
+},
+
+{
+q:"A client taking spironolactone should be taught to:",
+options:[
+"Use potassium supplements routinely",
+"Avoid potassium supplements and excessive high-potassium foods",
+"Increase salt substitutes",
+"Take potassium every hour"
+],
+answer:"B"
+},
+
+{
+q:"A mechanically ventilated patient with increased ICP requires which nursing intervention?",
+options:[
+"Keep the head flat",
+"HOB 30–45°, neck neutral, and hyperoxygenate before suctioning",
+"Frequent hip flexion",
+"Trendelenburg position"
+],
+answer:"B"
+},
+
+{
+q:"A child with RSV bronchiolitis requires which supportive care?",
+options:[
+"Routine antibiotics",
+"Hydration, humidified oxygen as needed, and nasal suctioning",
+"Fluid restriction",
+"High-dose steroids for every patient"
+],
+answer:"B"
+},
+
+{
+q:"After posterior total hip arthroplasty, which movement should be avoided?",
+options:[
+"Flexion beyond 90°, adduction, and internal rotation",
+"Ankle pumps",
+"Deep breathing",
+"Walking with assistance"
+],
+answer:"A"
+},
+
+{
+q:"A patient with a high-voltage electrical burn is at greatest risk for:",
+options:[
+"Only superficial skin injury",
+"Cardiac arrhythmias and acute kidney injury from myoglobinuria",
+"Hypercalcemia only",
+"Constipation"
+],
+answer:"B"
+},
+
+{
+q:"A pregnant woman at 30 weeks has painless bright-red vaginal bleeding with a soft, nontender uterus. What is suspected?",
+options:[
+"Placental abruption",
+"Placenta previa",
+"Uterine rupture",
+"Appendicitis"
+],
+answer:"B"
+},
+
+{
+q:"In START disaster triage, a victim has RR 32/min, capillary refill 4 seconds, and cannot follow commands. What tag is appropriate?",
+options:[
+"Green",
+"Yellow",
+"Red",
+"Black"
+],
+answer:"C"
+},
+
+{
+q:"Hydrocortisone may be used in refractory septic shock because it:",
+options:[
+"Causes permanent vasodilation",
+"Treats relative adrenal insufficiency and restores vascular responsiveness to vasopressors",
+"Raises potassium dramatically",
+"Stops bacterial growth directly"
+],
+answer:"B"
+},
+
+{
+q:"During an acute Crohn's disease exacerbation, which nutrition plan is appropriate?",
+options:[
+"High-residue diet",
+"Low-residue, high-calorie, high-protein nutrition as tolerated",
+"Nothing but raw vegetables",
+"Fat-only diet"
+],
+answer:"B"
+},
+
+{
+q:"A client with catatonic schizophrenia is at greatest immediate risk for:",
+options:[
+"Excessive socialization",
+"Failure to meet basic physiologic needs such as hydration and nutrition",
+"Hypertension only",
+"Weight gain only"
+],
+answer:"B"
+},
+
+{
+q:"A child with acute glomerulonephritis is likely to have:",
+options:[
+"Polyuria and clear urine",
+"Periorbital edema, hypertension, and cola-colored urine",
+"Severe hyperglycemia",
+"Bright red bleeding"
+],
+answer:"B"
+},
+
+{
+q:"A patient taking lisinopril develops swelling of the lips and tongue with difficulty breathing. What should the nurse do?",
+options:[
+"Give the next dose",
+"Discontinue the drug and initiate emergency management",
+"Encourage exercise",
+"Give potassium"
+],
+answer:"B"
+},
+
+{
+q:"A mechanically ventilated patient develops gurgling sounds in the epigastrium, abnormal ETCO₂, and absent left breath sounds. What is the priority concern?",
+options:[
+"Esophageal intubation or right mainstem bronchus intubation",
+"Normal tube placement",
+"Pulmonary edema only",
+"Hypertension"
+],
+answer:"A"
+},
+
+{
+q:"A newborn has HR 130, strong cry/withdrawal, flexed extremities, pink body with blue hands/feet, and strong respirations. What is the APGAR score?",
+options:[
+"7",
+"8",
+"9",
+"10"
+],
+answer:"C"
+},
+
+{
+q:"A patient receives radioactive iodine I-131. Which instruction is appropriate?",
+options:[
+"Stay close to pregnant women",
+"Maintain distance from pregnant women/infants, use a separate toilet, and flush twice",
+"Share utensils freely",
+"Sleep beside infants"
+],
+answer:"B"
+},
+
+{
+q:"How does carbidopa enhance levodopa therapy?",
+options:[
+"It blocks dopamine receptors in the brain",
+"It inhibits peripheral decarboxylation so more levodopa crosses the blood-brain barrier",
+"It destroys dopamine",
+"It increases renal potassium loss"
+],
+answer:"B"
+},
+
+{
+q:"A child with nephrotic syndrome typically has:",
+options:[
+"Low proteinuria",
+"Massive proteinuria, hypoalbuminemia, and hyperlipidemia",
+"Hypercalcemia only",
+"Polycythemia"
+],
+answer:"B"
+},
+
+{
+q:"A depressed suicidal client suddenly appears calm and gives away personal belongings. How should this behavior be interpreted?",
+options:[
+"Risk has disappeared",
+"Suicide risk may be high because the client may have developed a plan and energy to act",
+"Recovery is guaranteed",
+"The behavior is always attention-seeking"
+],
+answer:"B"
+},
+
+{
+q:"An adult weighing 80 kg has burns over 45% TBSA. Using the Parkland formula (4 mL × kg × %TBSA), how much fluid should be given in the first 8 hours?",
+options:[
+"3,600 mL",
+"5,400 mL",
+"7,200 mL",
+"14,400 mL"
+],
+answer:"C"
+},
+
+{
+q:"A patient with CKD has calcium 7.2 mg/dL and phosphorus 6.5 mg/dL. Which manifestation is expected?",
+options:[
+"Muscle spasms, positive Trousseau sign, and tetany",
+"Flaccid paralysis only",
+"Hyperactive appetite",
+"Severe hyperglycemia"
+],
+answer:"A"
+},
+
+{
+q:"A postpartum client on day 3 after cesarean section develops fever, uterine tenderness, and foul-smelling lochia. What is suspected?",
+options:[
+"Mastitis",
+"Postpartum endometritis",
+"Normal postpartum recovery",
+"Placenta previa"
+],
+answer:"B"
+},
+
+{
+q:"A patient with PSVT is prescribed adenosine. How should it be administered?",
+options:[
+"Slow IV infusion over 30 minutes",
+"Rapid IV push through a proximal IV followed immediately by rapid normal-saline flush",
+"Oral tablet",
+"IM injection"
+],
+answer:"B"
+},
+
+{
+q:"A child with pyloric stenosis is most likely to develop:",
+options:[
+"Metabolic acidosis",
+"Metabolic alkalosis",
+"Respiratory acidosis",
+"Hyperkalemia"
+],
+answer:"B"
+},
+
+{
+q:"Which biomarker is most specific for myocardial injury?",
+options:[
+"CK total",
+"LDH",
+"Troponin I/T",
+"AST"
+],
+answer:"C"
+},
+
+{
+q:"A client with OCD washes hands until bleeding occurs. What is the most appropriate nursing approach?",
+options:[
+"Immediately prohibit all rituals",
+"Allow limited ritual time while gradually setting limits and maintaining a therapeutic relationship",
+"Encourage more washing",
+"Ignore the behavior completely"
+],
+answer:"B"
+},
+
+{
+q:"Which findings are characteristic of Cushing syndrome?",
+options:[
+"Moon face, buffalo hump, truncal obesity, and purple striae",
+"Weight loss and hyperpigmentation only",
+"Severe dehydration",
+"Low blood pressure only"
+],
+answer:"A"
+},
+
+{
+q:"A community plans mass vaccination during a measles outbreak. This is an example of:",
+options:[
+"Secondary prevention",
+"Primary prevention",
+"Tertiary prevention",
+"Rehabilitation"
+],
+answer:"B"
+},
+
+{
+q:"A patient in cardiogenic shock is expected to have:",
+options:[
+"Low cardiac output, high PCWP, and high SVR",
+"High cardiac output and low SVR",
+"Low PCWP and high cardiac output",
+"Normal hemodynamics"
+],
+answer:"A"
+},
+
+{
+q:"A child with intussusception commonly presents with:",
+options:[
+"Continuous mild pain",
+"Colicky abdominal pain, knees drawn to chest, vomiting, and currant-jelly stools",
+"Only diarrhea",
+"Polyuria"
+],
+answer:"B"
+},
+
+{
+q:"A patient taking methotrexate for rheumatoid arthritis requires monitoring of:",
+options:[
+"CBC and liver function tests",
+"Troponin only",
+"Blood glucose only",
+"Calcium only"
+],
+answer:"A"
+},
+
+{
+q:"Betamethasone given to a pregnant woman at 28 weeks is intended to:",
+options:[
+"Increase maternal blood pressure",
+"Accelerate fetal lung maturation and reduce respiratory distress syndrome",
+"Stop all uterine contractions",
+"Treat maternal anemia"
+],
+answer:"B"
+},
+
+{
+q:"A patient with portal hypertension develops acute esophageal variceal bleeding. Which medication may be administered?",
+options:[
+"Octreotide",
+"Insulin",
+"Warfarin",
+"Digoxin"
+],
+answer:"A"
+},
+
+{
+q:"A patient receiving haloperidol develops severe rigidity, fever 40°C, labile blood pressure, altered mental status, and diaphoresis. What condition is suspected?",
+options:[
+"Serotonin syndrome",
+"Neuroleptic malignant syndrome",
+"Lithium toxicity",
+"Alcohol withdrawal only"
+],
+answer:"B"
+},
+
+{
+q:"A patient with flail chest has paradoxical chest movement. During inspiration, the flail segment moves:",
+options:[
+"Inward",
+"Outward",
+"Upward only",
+"Does not move"
+],
+answer:"A"
+},
+
+{
+q:"A child with cystic fibrosis takes pancreatic enzymes. When should they be taken?",
+options:[
+"Once daily",
+"Immediately before or with every meal and snack",
+"Only at bedtime",
+"Only when abdominal pain occurs"
+],
+answer:"B"
+},
+
+{
+q:"A client receiving magnesium sulfate for preeclampsia develops toxicity. What is the antidote?",
+options:[
+"Vitamin K",
+"Calcium gluconate",
+"Naloxone",
+"Atropine"
+],
+answer:"B"
+},
+
+{
+q:"A patient taking warfarin has an INR of 4.8 without major bleeding. What is the appropriate initial action?",
+options:[
+"Increase warfarin",
+"Hold the dose and notify the provider; prepare vitamin K if clinically indicated",
+"Give heparin",
+"Give aspirin"
+],
+answer:"B"
+},
+
+{
+q:"A patient receiving continuous bladder irrigation after TURP develops obstruction and bladder spasms. What should the nurse do?",
+options:[
+"Stop all fluids permanently",
+"Perform manual irrigation with sterile normal saline per protocol to clear clots",
+"Give oral potassium",
+"Remove the catheter immediately"
+],
+answer:"B"
+},
+
+{
+q:"A newborn has bleeding between the skull bone and periosteum that does not cross suture lines. What is this called?",
+options:[
+"Caput succedaneum",
+"Cephalohematoma",
+"Hydrocephalus",
+"Subdural hemorrhage"
+],
+answer:"B"
+},
+
+{
+q:"A client taking an SSRI also takes St. John's wort. Which condition is the major concern?",
+options:[
+"Hypoglycemia",
+"Serotonin syndrome",
+"Renal failure",
+"Hypercalcemia"
+],
+answer:"B"
+},
+
+{
+q:"A child with type 1 diabetes develops DKA. Which respiratory pattern is expected?",
+options:[
+"Bradypnea",
+"Kussmaul respirations",
+"Cheyne-Stokes only",
+"Apnea immediately"
+],
+answer:"B"
+},
+
+{
+q:"Pressure support ventilation primarily:",
+options:[
+"Prevents all spontaneous breathing",
+"Assists spontaneous breaths with positive pressure during inspiration to overcome circuit resistance",
+"Provides only expiratory pressure",
+"Stops respiratory effort"
+],
+answer:"B"
+},
+
+{
+q:"A patient with osteomyelitis has a PICC line. Which complications should be monitored for?",
+options:[
+"Catheter bloodstream infection and DVT",
+"Only constipation",
+"Hypercalcemia only",
+"Vision loss"
+],
+answer:"A"
+},
+
+{
+q:"A patient taking atorvastatin should report:",
+options:[
+"Mild hunger",
+"Unexplained muscle pain, tenderness, or weakness",
+"Occasional thirst",
+"Normal urination"
+],
+answer:"B"
+},
+
+{
+q:"In disaster triage, a black tag generally indicates:",
+options:[
+"Minor injury",
+"Delayed care",
+"Deceased or expectant patient unlikely to survive even with optimal care",
+"Immediate treatment"
+],
+answer:"C"
+},
+
+{
+q:"A pregnant woman at 36 weeks develops severe abdominal pain, board-like uterus, and dark-red vaginal bleeding. What is suspected?",
+options:[
+"Placenta previa",
+"Placental abruption",
+"Hyperemesis",
+"Normal labor"
+],
+answer:"B"
+},
+
+{
+q:"A patient with infective endocarditis suddenly develops left hemiplegia and neglect. What is the likely cause?",
+options:[
+"Septic cerebral embolus/stroke",
+"Hypoglycemia",
+"Peripheral neuropathy",
+"Renal colic"
+],
+answer:"B"
+},
+
+{
+q:"Untreated congenital hypothyroidism in an infant may lead to:",
+options:[
+"Permanent cognitive impairment and developmental delay",
+"Improved growth",
+"Hyperactivity only",
+"Temporary cough"
+],
+answer:"A"
+},
+
+{
+q:"A patient with chronic pancreatitis has steatorrhea and malabsorption. Which dietary plan is appropriate?",
+options:[
+"High-fat diet without enzymes",
+"Low-fat, high-protein, high-carbohydrate diet with pancreatic enzymes",
+"Only clear liquids permanently",
+"Zero protein diet"
+],
+answer:"B"
+}
+
+];
+
+
+/* =========================================================
+   المتغيرات
+========================================================= */
+
+let currentQuestion = 0;
+let score = 0;
+let selectedAnswer = null;
+let timerInterval = null;
+let timeLeft = 20;
+let candidateName = "";
+let candidateEmail = "";
+
+
+/* =========================================================
+   بدء الاختبار
+========================================================= */
+
+function startExam(){
+
+  const nameInput =
+    document.getElementById("candidateName").value.trim();
+
+  const emailInput =
+    document.getElementById("candidateEmail").value.trim().toLowerCase();
+
+  const error =
+    document.getElementById("startError");
+
+  error.textContent = "";
+
+  if(!nameInput){
+    error.textContent = "يرجى إدخال اسم الممتحن/الممتحنة.";
+    return;
+  }
+
+  if(!emailInput){
+    error.textContent = "يرجى إدخال البريد الإلكتروني.";
+    return;
+  }
+
+  if(!isValidEmail(emailInput)){
+    error.textContent = "يرجى إدخال بريد إلكتروني صحيح.";
+    return;
+  }
+
+  /*
+    منع إعادة الاختبار على نفس المتصفح
+  */
+
+  const usedKey =
+    "nursing_exam_used_" + emailInput;
+
+  if(localStorage.getItem(usedKey) === "true"){
+
+    error.textContent =
+      "هذا البريد الإلكتروني استخدم الاختبار مسبقًا ولا يمكن بدء محاولة جديدة.";
+
+    return;
+  }
+
+  candidateName = nameInput;
+  candidateEmail = emailInput;
+
+  /*
+    تسجيل المحاولة مباشرة عند بدء الاختبار
+  */
+
+  localStorage.setItem(usedKey,"true");
+
+  document.getElementById("startPage")
+    .classList.add("hidden");
+
+  document.getElementById("examPage")
+    .classList.remove("hidden");
+
+  currentQuestion = 0;
+  score = 0;
+
+  showQuestion();
+}
+
+
+/* =========================================================
+   التحقق من البريد
+========================================================= */
+
+function isValidEmail(email){
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+}
+
+
+/* =========================================================
+   عرض السؤال
+========================================================= */
+
+function showQuestion(){
+
+  clearInterval(timerInterval);
+
+  selectedAnswer = null;
+
+  const q = questions[currentQuestion];
+
+  document.getElementById("questionNumber").textContent =
+    "السؤال " + (currentQuestion + 1) +
+    " من " + questions.length;
+
+  document.getElementById("questionText").textContent =
+    q.q;
+
+  const optionsContainer =
+    document.getElementById("options");
+
+  optionsContainer.innerHTML = "";
+
+  const letters = ["A","B","C","D"];
+
+  q.options.forEach((option,index)=>{
+
+    const div = document.createElement("div");
+
+    div.className = "option";
+
+    div.innerHTML =
+      "<strong>" + letters[index] + ".</strong> " +
+      escapeHtml(option);
+
+    div.onclick = function(){
+
+      document
+        .querySelectorAll(".option")
+        .forEach(el =>
+          el.classList.remove("selected")
+        );
+
+      div.classList.add("selected");
+
+      selectedAnswer = letters[index];
+
+    };
+
+    optionsContainer.appendChild(div);
+
+  });
+
+  const progress =
+    ((currentQuestion) / questions.length) * 100;
+
+  document.getElementById("progressBar")
+    .style.width = progress + "%";
+
+  document.getElementById("nextButton").textContent =
+    currentQuestion === questions.length - 1
+      ? "إنهاء الاختبار"
+      : "التالي";
+
+  startTimer();
+
+}
+
+
+/* =========================================================
+   المؤقت
+========================================================= */
+
+function startTimer(){
+
+  timeLeft = 20;
+
+  updateTimer();
+
+  timerInterval = setInterval(()=>{
+
+    timeLeft--;
+
+    updateTimer();
+
+    if(timeLeft <= 0){
+
+      clearInterval(timerInterval);
+
+      nextQuestion();
+
+    }
+
+  },1000);
+
+}
+
+
+function updateTimer(){
+
+  const timer =
+    document.getElementById("timer");
+
+  timer.textContent =
+    timeLeft + " ثانية";
+
+  if(timeLeft <= 10){
+
+    timer.classList.add("danger");
+
+  }else{
+
+    timer.classList.remove("danger");
+
+  }
+
+}
+
+
+/* =========================================================
+   السؤال التالي
+========================================================= */
+
+function nextQuestion(){
+
+  clearInterval(timerInterval);
+
+  /*
+    احتساب الإجابة
+  */
+
+  if(selectedAnswer === questions[currentQuestion].answer){
+
+    score++;
+
+  }
+
+  currentQuestion++;
+
+  if(currentQuestion >= questions.length){
+
+    finishExam();
+
+    return;
+
+  }
+
+  showQuestion();
+
+}
+
+
+/* =========================================================
+   إنهاء الاختبار
+========================================================= */
+
+function finishExam(){
+
+  clearInterval(timerInterval);
+
+  document.getElementById("examPage")
+    .classList.add("hidden");
+
+  document.getElementById("resultPage")
+    .classList.remove("hidden");
+
+  const percentage =
+    Math.round((score / questions.length) * 100);
+
+  document.getElementById("candidateResult").textContent =
+    "الممتحن/الممتحنة: " + candidateName;
+
+  document.getElementById("score").textContent =
+    score + " / " + questions.length;
+
+  document.getElementById("resultDetails").innerHTML =
+    "النسبة: <strong>" + percentage + "%</strong><br><br>" +
+    "تم تسجيل نتيجة الاختبار.";
+}
+
+
+/* =========================================================
+   حماية عرض النصوص
+========================================================= */
+
+function escapeHtml(text){
+
+  return String(text)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================================
+   حماية إضافية
+========================================================= */
+
+/* منع القائمة بالزر الأيمن */
+document.addEventListener("contextmenu",function(e){
+  e.preventDefault();
+});
+
+/* منع النسخ */
+document.addEventListener("copy",function(e){
+  e.preventDefault();
+});
+
+/* منع القص */
+document.addEventListener("cut",function(e){
+  e.preventDefault();
+});
+
+/* منع سحب المحتوى */
+document.addEventListener("dragstart",function(e){
+  e.preventDefault();
+});
+
+/* منع اختصارات النسخ والطباعة والحفظ ومصدر الصفحة */
+document.addEventListener("keydown",function(e){
+
+  const key = e.key.toLowerCase();
+
+  if(
+    (e.ctrlKey || e.metaKey) &&
+    ["c","x","u","s","p","a"].includes(key)
+  ){
+    e.preventDefault();
+  }
+
+  /* منع F12 */
+  if(e.key === "F12"){
+    e.preventDefault();
+  }
+
+});
+
+
+/* =========================================================
+   إخفاء/طمس الاختبار عند مغادرة الصفحة
+========================================================= */
+
+document.addEventListener("visibilitychange",function(){
+
+  const examPage =
+    document.getElementById("examPage");
+
+  if(!examPage) return;
+
+  if(document.hidden){
+
+    if(!examPage.classList.contains("hidden")){
+      examPage.style.filter = "blur(25px)";
+    }
+
+  }else{
+
+    examPage.style.filter = "none";
+
+  }
+
+});
+
+</script>
+
+</body>
+</html>
